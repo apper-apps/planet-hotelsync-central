@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/Card"
 import ApperIcon from "@/components/ApperIcon"
+import CalendarReservation from "@/components/organisms/CalendarReservation"
 
 const Reservations = () => {
   return (
@@ -13,23 +14,7 @@ const Reservations = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <Card className="h-96">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ApperIcon name="Calendar" className="h-5 w-5" />
-                Booking Calendar
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-center justify-center h-64">
-              <div className="text-center">
-                <div className="h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
-                  <ApperIcon name="Calendar" className="h-8 w-8 text-blue-600" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Calendar View Coming Soon</h3>
-                <p className="text-gray-600">Interactive booking calendar with drag-and-drop functionality</p>
-              </div>
-            </CardContent>
-          </Card>
+<CalendarReservation />
         </div>
 
         <div className="space-y-6">
@@ -40,29 +25,13 @@ const Reservations = () => {
                 Today's Schedule
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+<CardContent className="space-y-4">
+              <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
                 <div className="flex items-center gap-2 mb-2">
-                  <ApperIcon name="LogIn" className="h-4 w-4 text-green-600" />
-                  <span className="font-medium text-green-900">Check-ins (5)</span>
+                  <ApperIcon name="Info" className="h-4 w-4 text-gray-600" />
+                  <span className="font-medium text-gray-900">Quick Stats</span>
                 </div>
-                <p className="text-sm text-green-700">Expected between 3:00 PM - 8:00 PM</p>
-              </div>
-              
-              <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
-                <div className="flex items-center gap-2 mb-2">
-                  <ApperIcon name="LogOut" className="h-4 w-4 text-amber-600" />
-                  <span className="font-medium text-amber-900">Check-outs (3)</span>
-                </div>
-                <p className="text-sm text-amber-700">Scheduled by 11:00 AM</p>
-              </div>
-              
-              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                <div className="flex items-center gap-2 mb-2">
-                  <ApperIcon name="Star" className="h-4 w-4 text-blue-600" />
-                  <span className="font-medium text-blue-900">VIP Arrivals (1)</span>
-                </div>
-                <p className="text-sm text-blue-700">Presidential Suite - 6:00 PM</p>
+                <p className="text-sm text-gray-700">View reservation details and today's activities in the calendar above</p>
               </div>
             </CardContent>
           </Card>
