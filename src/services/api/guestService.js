@@ -127,8 +127,6 @@ class GuestService {
     const deletedGuest = this.guests.splice(index, 1)[0]
     return { ...deletedGuest }
   }
-
-  async checkIn(id) {
 async checkIn(id) {
     const guest = await this.update(id, { status: "checked-in" })
     // Dispatch custom event for room status updates
@@ -138,8 +136,9 @@ async checkIn(id) {
       }))
     }
     return guest
+  }
 
-async checkOut(id) {
+  async checkOut(id) {
     const guest = await this.update(id, { status: "checked-out" })
     // Dispatch custom event for room status updates
     if (typeof window !== 'undefined' && window.CustomEvent) {
