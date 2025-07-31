@@ -1,8 +1,134 @@
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/Card"
 import Button from "@/components/atoms/Button"
 import ApperIcon from "@/components/ApperIcon"
-
+import MetricCard from "@/components/molecules/MetricCard"
+import { reportsService } from "@/services/api/reportsService"
+import { toast } from 'react-toastify'
+import Chart from 'react-apexcharts'
 const Reports = () => {
+  const [metrics, setMetrics] = useState(null)
+  const [revenueHistory, setRevenueHistory] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    loadReportsData()
+  }, [])
+
+  const loadReportsData = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      const [metricsData, revenueData] = await Promise.all([
+        reportsService.getMetrics(),
+        reportsService.getRevenueHistory()
+      ])
+      
+      setMetrics(metricsData)
+      setRevenueHistory(revenueData)
+      toast.success('Reports data loaded successfully')
+    } catch (err) {
+      setError(err.message)
+      toast.error('Failed to load reports data')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const chartOptions = {
+    chart: {
+      type: 'area',
+      height: 350,
+      toolbar: { show: false },
+      zoom: { enabled: false }
+    },
+    dataLabels: { enabled: false },
+    stroke: {
+      curve: 'smooth',
+      width: 3,
+      colors: ['#3B82F6']
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 0.4,
+        opacityTo: 0.1,
+        stops: [0, 90, 100]
+      },
+      colors: ['#3B82F6']
+    },
+    grid: {
+      borderColor: '#E5E7EB',
+      strokeDashArray: 4
+    },
+    xaxis: {
+      categories: revenueHistory.map(item => item.formattedDate),
+      labels: {
+        style: { colors: '#6B7280', fontSize: '12px' }
+      },
+      axisBorder: { show: false },
+      axisTicks: { show: false }
+    },
+    yaxis: {
+      labels: {
+        style: { colors: '#6B7280', fontSize: '12px' },
+        formatter: (value) => `$${value.toLocaleString()}`
+      }
+    },
+    tooltip: {
+      theme: 'light',
+      x: { show: true },
+      y: {
+        formatter: (value) => `$${value.toLocaleString()}`
+      },
+      style: { fontSize: '12px' }
+    },
+    colors: ['#3B82F6']
+  }
+
+  const chartSeries = [{
+    name: 'Daily Revenue',
+    data: revenueHistory.map(item => item.revenue)
+  }]
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Reports Dashboard</h1>
+        </div>
+        <div className="flex items-center justify-center h-64">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <p className="text-gray-600">Loading reports data...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Reports Dashboard</h1>
+        </div>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <ApperIcon name="AlertCircle" size={48} className="text-red-500 mx-auto mb-4" />
+            <p className="text-gray-600 mb-4">{error}</p>
+            <Button onClick={loadReportsData} variant="primary">
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-8">
       <div>
@@ -23,11 +149,88 @@ const Reports = () => {
         </Button>
         <Button variant="outline" className="gap-2">
           <ApperIcon name="Filter" className="h-4 w-4" />
-          Filters
+Filters
+        </Button>
+        <Button 
+          onClick={loadReportsData}
+          variant="outline"
+          className="flex items-center space-x-2"
+        >
+          <ApperIcon name="RefreshCw" size={16} />
+          <span>Refresh</span>
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Key Metrics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <MetricCard
+          title="Today's Revenue"
+          value={`$${metrics?.todayRevenue?.toLocaleString() || '0'}`}
+          icon="DollarSign"
+          gradient="blue"
+          change={12.5}
+          changeType="positive"
+        />
+        <MetricCard
+          title="Occupancy Rate"
+          value={`${metrics?.occupancyRate || 0}%`}
+          icon="Users"
+          gradient="green"
+          change={-2.1}
+          changeType="negative"
+          subtitle={`${metrics?.occupiedRooms || 0}/${metrics?.totalRooms || 0} rooms`}
+        />
+        <MetricCard
+          title="Average Daily Rate"
+          value={`$${metrics?.adr?.toFixed(2) || '0.00'}`}
+          icon="TrendingUp"
+          gradient="amber"
+          change={5.8}
+          changeType="positive"
+          subtitle="ADR per occupied room"
+        />
+        <MetricCard
+          title="RevPAR"
+          value={`$${metrics?.revpar?.toFixed(2) || '0.00'}`}
+          icon="BarChart3"
+          gradient="red"
+          change={8.3}
+          changeType="positive"
+          subtitle="Revenue per available room"
+        />
+      </div>
+
+      {/* Revenue Chart */}
+      <div className="grid grid-cols-1 gap-6">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Daily Revenue Trend</CardTitle>
+                <p className="text-sm text-gray-600 mt-1">Revenue performance over the past 30 days</p>
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <div className="flex items-center space-x-1">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <span>Revenue</span>
+                </div>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="h-80">
+              <Chart
+                options={chartOptions}
+                series={chartSeries}
+                type="area"
+                height={320}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -158,7 +361,7 @@ const Reports = () => {
                 <p className="text-sm text-red-800">Elevator in Building A requires scheduled maintenance next week.</p>
               </div>
             </div>
-          </CardContent>
+</CardContent>
         </Card>
       </div>
     </div>
