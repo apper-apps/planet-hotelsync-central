@@ -110,9 +110,9 @@ loadData()
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Room Status Grid */}
-<div className="lg:col-span-3 space-y-6">
+<div className="space-y-8">
+        {/* Room Status Overview - Full Width */}
+        <div className="space-y-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
               <h2 className="text-2xl font-bold font-display text-navy-700">Room Status Overview</h2>
@@ -141,8 +141,8 @@ loadData()
           <RoomGrid rooms={rooms} onRoomUpdate={handleRoomUpdate} />
         </div>
 
-        {/* Status Legend */}
-        <div className="space-y-6">
+        {/* Bottom Section - Status Legend and Quick Stats */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <StatusLegend />
           
           <div className="bg-gradient-to-br from-navy-50 to-blue-50 p-6 rounded-xl border border-navy-100">
