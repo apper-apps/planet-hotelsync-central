@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/atoms/Card';
 import Button from '@/components/atoms/Button';
-import { Input } from '@/components/atoms/Input';
-import { Label } from '@/components/atoms/Label';
+import Input from '@/components/atoms/Input';
+import Label from '@/components/atoms/Label';
 import ApperIcon from '@/components/ApperIcon';
 import { format, addDays } from 'date-fns';
 
