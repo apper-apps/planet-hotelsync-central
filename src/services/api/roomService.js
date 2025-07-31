@@ -19,7 +19,7 @@ class RoomService {
     return { ...room }
   }
 
-  async create(roomData) {
+async create(roomData) {
     await this.delay(400)
     const newId = Math.max(...this.rooms.map(room => room.Id)) + 1
     const newRoom = {

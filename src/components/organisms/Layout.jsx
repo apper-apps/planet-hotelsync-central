@@ -9,7 +9,7 @@ const Layout = ({ children }) => {
 
   useEffect(() => {
     const loadOccupancyData = async () => {
-      try {
+try {
         const rooms = await roomService.getAll()
         const occupiedCount = rooms.filter(room => room.status === "occupied").length
         setOccupancyData({ occupied: occupiedCount, total: rooms.length })
@@ -20,14 +20,23 @@ const Layout = ({ children }) => {
 
     loadOccupancyData()
     
+    // Listen for guest status changes to refresh room data
+    const handleGuestStatusChange = () => {
+      loadOccupancyData()
+    }
+    
+    window.addEventListener('guestStatusChanged', handleGuestStatusChange)
+    
     // Refresh occupancy data every 30 seconds
     const interval = setInterval(loadOccupancyData, 30000)
-    return () => clearInterval(interval)
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener('guestStatusChanged', handleGuestStatusChange)
+    }
   }, [])
-
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      <Sidebar 
+<Sidebar 
         isOpen={sidebarOpen} 
         onClose={() => setSidebarOpen(false)} 
       />
@@ -46,5 +55,4 @@ const Layout = ({ children }) => {
     </div>
   )
 }
-
 export default Layout
