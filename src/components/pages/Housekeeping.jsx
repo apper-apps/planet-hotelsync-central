@@ -98,7 +98,7 @@ const Housekeeping = () => {
     loadRooms()
   }, [])
 
-  const loadRooms = async () => {
+const loadRooms = async () => {
     try {
       const roomsData = await roomService.getAll()
       setRooms(roomsData)
@@ -107,6 +107,93 @@ const Housekeeping = () => {
       toast.error("Failed to load rooms")
     }
   }
+
+  // Drag and Drop Handlers
+  const handleDragStart = (e, task) => {
+    setDraggedTask(task)
+    e.dataTransfer.effectAllowed = "move"
+  }
+
+  const handleDragOver = (e) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "move"
+  }
+
+  const handleDrop = async (e, newStatus) => {
+    e.preventDefault()
+    
+    if (!draggedTask || draggedTask.status === newStatus) {
+      setDraggedTask(null)
+      return
+    }
+
+    const updatedTasks = tasks.map(task => 
+      task.id === draggedTask.id 
+        ? { ...task, status: newStatus }
+        : task
+    )
+    
+    setTasks(updatedTasks)
+    setDraggedTask(null)
+    
+    // Update room status when task is completed
+    if (newStatus === 'completed' && draggedTask.taskType === 'cleaning') {
+      try {
+        await roomService.updateRoomStatusFromTask(draggedTask.roomNumber, 'vacant')
+        toast.success(`Room ${draggedTask.roomNumber} status updated to vacant`)
+        
+        // Dispatch event for real-time updates
+        window.dispatchEvent(new window.CustomEvent('housekeepingTaskCompleted', {
+          detail: { roomNumber: draggedTask.roomNumber, taskType: draggedTask.taskType }
+        }))
+      } catch (error) {
+        console.error("Failed to update room status:", error)
+        toast.error("Failed to update room status")
+      }
+    }
+    
+    toast.success(`Task moved to ${newStatus.replace('-', ' ')}`)
+  }
+
+  const handleCreateTask = () => {
+    if (!newTask.roomNumber || !newTask.assignedTo) {
+      toast.error("Please fill in all required fields")
+      return
+    }
+    
+    const task = {
+      id: Date.now(),
+      roomNumber: newTask.roomNumber,
+      taskType: newTask.taskType,
+      priority: newTask.priority,
+      assignedTo: newTask.assignedTo,
+      status: "to-clean",
+      estimatedTime: `${newTask.estimatedTime} min`,
+      createdAt: new Date().toISOString(),
+      dueTime: new Date(Date.now() + parseInt(newTask.estimatedTime) * 60000).toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      })
+    }
+    
+    setTasks([...tasks, task])
+    setNewTask({
+      roomNumber: "",
+      taskType: "cleaning",
+      assignedTo: "",
+      estimatedTime: "45",
+      priority: "medium"
+    })
+    setShowCreateModal(false)
+    toast.success("Task created successfully")
+  }
+
+  const handleTaskDelete = (taskId) => {
+    setTasks(tasks.filter(task => task.id !== taskId))
+    toast.success("Task deleted successfully")
+  }
+
   return (
     <div className="space-y-8">
       <div>
@@ -489,90 +576,5 @@ const TaskCard = ({ task, onDragStart, onTaskDelete }) => {
   )
 }
 
-// Drag and Drop Handlers
-const handleDragStart = (e, task) => {
-  setDraggedTask(task)
-  e.dataTransfer.effectAllowed = "move"
-}
-
-const handleDragOver = (e) => {
-  e.preventDefault()
-  e.dataTransfer.dropEffect = "move"
-}
-
-const handleDrop = async (e, newStatus) => {
-  e.preventDefault()
-  
-  if (!draggedTask || draggedTask.status === newStatus) {
-    setDraggedTask(null)
-    return
-  }
-
-  const updatedTasks = tasks.map(task => 
-    task.id === draggedTask.id 
-      ? { ...task, status: newStatus }
-      : task
-  )
-  
-  setTasks(updatedTasks)
-  setDraggedTask(null)
-  
-  // Update room status when task is completed
-  if (newStatus === 'completed' && draggedTask.taskType === 'cleaning') {
-    try {
-      await roomService.updateRoomStatusFromTask(draggedTask.roomNumber, 'vacant')
-      toast.success(`Room ${draggedTask.roomNumber} status updated to vacant`)
-toast.success(`Room ${draggedTask.roomNumber} status updated to vacant`)
-      
-      // Dispatch event for real-time updates
-      window.dispatchEvent(new window.CustomEvent('housekeepingTaskCompleted', {
-        detail: { roomNumber: draggedTask.roomNumber, taskType: draggedTask.taskType }
-      }))
-      console.error("Failed to update room status:", error)
-      toast.error("Failed to update room status")
-    }
-  }
-  
-  toast.success(`Task moved to ${newStatus.replace('-', ' ')}`)
-}
-
-const handleCreateTask = () => {
-  if (!newTask.roomNumber || !newTask.assignedTo) {
-    toast.error("Please fill in all required fields")
-    return
-  }
-  
-  const task = {
-    id: Date.now(),
-    roomNumber: newTask.roomNumber,
-    taskType: newTask.taskType,
-    priority: newTask.priority,
-    assignedTo: newTask.assignedTo,
-    status: "to-clean",
-    estimatedTime: `${newTask.estimatedTime} min`,
-    createdAt: new Date().toISOString(),
-    dueTime: new Date(Date.now() + parseInt(newTask.estimatedTime) * 60000).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    })
-  }
-  
-  setTasks([...tasks, task])
-  setNewTask({
-    roomNumber: "",
-    taskType: "cleaning",
-    assignedTo: "",
-    estimatedTime: "45",
-    priority: "medium"
-  })
-  setShowCreateModal(false)
-  toast.success("Task created successfully")
-}
-
-const handleTaskDelete = (taskId) => {
-  setTasks(tasks.filter(task => task.id !== taskId))
-  toast.success("Task deleted successfully")
-}
 
 export default Housekeeping
