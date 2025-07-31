@@ -18,20 +18,27 @@ try {
       }
     }
 
-    loadOccupancyData()
+loadOccupancyData()
     
     // Listen for guest status changes to refresh room data
     const handleGuestStatusChange = () => {
       loadOccupancyData()
     }
     
+    // Listen for housekeeping task completion events
+    const handleHousekeepingTaskCompleted = () => {
+      loadOccupancyData()
+    }
+    
     window.addEventListener('guestStatusChanged', handleGuestStatusChange)
+    window.addEventListener('housekeepingTaskCompleted', handleHousekeepingTaskCompleted)
     
     // Refresh occupancy data every 30 seconds
     const interval = setInterval(loadOccupancyData, 30000)
     return () => {
       clearInterval(interval)
       window.removeEventListener('guestStatusChanged', handleGuestStatusChange)
+      window.removeEventListener('housekeepingTaskCompleted', handleHousekeepingTaskCompleted)
     }
   }, [])
   return (

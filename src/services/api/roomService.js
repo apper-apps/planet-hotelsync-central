@@ -51,6 +51,16 @@ async create(roomData) {
     
     const deletedRoom = this.rooms.splice(index, 1)[0]
     return { ...deletedRoom }
+}
+
+  async updateRoomStatusFromTask(roomNumber, newStatus) {
+    await this.delay(200)
+    const room = this.rooms.find(room => room.number === roomNumber)
+    if (room) {
+      room.status = newStatus
+      return { ...room }
+    }
+    throw new Error(`Room ${roomNumber} not found`)
   }
 
   delay(ms) {

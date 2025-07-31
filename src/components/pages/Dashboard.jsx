@@ -25,9 +25,19 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
-    loadData()
+loadData()
+    
+    // Listen for housekeeping task completion events
+    const handleHousekeepingTaskCompleted = () => {
+      loadData()
+    }
+    
+    window.addEventListener('housekeepingTaskCompleted', handleHousekeepingTaskCompleted)
+    
+    return () => {
+      window.removeEventListener('housekeepingTaskCompleted', handleHousekeepingTaskCompleted)
+    }
   }, [])
-
   const handleRoomUpdate = (updatedRoom) => {
     setRooms(prev => prev.map(room => 
       room.Id === updatedRoom.Id ? updatedRoom : room
