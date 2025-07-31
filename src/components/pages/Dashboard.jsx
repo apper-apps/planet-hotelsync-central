@@ -112,28 +112,28 @@ loadData()
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Room Status Grid */}
-        <div className="lg:col-span-3 space-y-6">
-          <div className="flex items-center justify-between">
+<div className="lg:col-span-3 space-y-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
               <h2 className="text-2xl font-bold font-display text-navy-700">Room Status Overview</h2>
               <p className="text-gray-600">Click any room for details and quick actions</p>
             </div>
-            <div className="flex items-center gap-4 text-sm">
+            <div className="flex flex-wrap items-center gap-3 lg:gap-4 text-sm">
               <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-red-500"></div>
-                <span>Occupied ({occupiedRooms})</span>
+                <div className="h-3 w-3 rounded-full bg-red-500 flex-shrink-0"></div>
+                <span className="whitespace-nowrap">Occupied ({occupiedRooms})</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-green-500"></div>
-                <span>Vacant ({vacantRooms})</span>
+                <div className="h-3 w-3 rounded-full bg-green-500 flex-shrink-0"></div>
+                <span className="whitespace-nowrap">Vacant ({vacantRooms})</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
-                <span>Cleaning ({cleaningRooms})</span>
+                <div className="h-3 w-3 rounded-full bg-yellow-500 flex-shrink-0"></div>
+                <span className="whitespace-nowrap">Cleaning ({cleaningRooms})</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-orange-500"></div>
-                <span>Maintenance ({maintenanceRooms})</span>
+                <div className="h-3 w-3 rounded-full bg-orange-500 flex-shrink-0"></div>
+                <span className="whitespace-nowrap">Maintenance ({maintenanceRooms})</span>
               </div>
             </div>
           </div>
